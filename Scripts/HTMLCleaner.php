@@ -19,8 +19,11 @@ class HTMLCleaner {
 	 *	@return The result string.
 	 */
 	public function cleanUpHTML($htmlCode) {
+		echo(htmlentities($htmlCode))."<br>";
+		$cleanHtmlCode = html_entity_decode($htmlCode);
+		echo(htmlentities($cleanHtmlCode));
 		$cleanHtmlCode = $this->cleanFirstDivIfAny($htmlCode);
-		$cleanHtmlCode = $this->cleanUpFontTagsIfAny($htmlCode);
+		$cleanHtmlCode = $this->cleanUpFontTagsIfAny($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpEmptyTags($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);

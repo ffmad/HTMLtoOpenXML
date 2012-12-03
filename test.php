@@ -2,9 +2,9 @@
 
 	// this is a test page for HTMLtoOpenXML 
 	
-	require_once "Scripts/HTMLtoOpenXML.php";
+	require_once "HTMLtoOpenXML.php";
 	
-	$html = "wouhou <b>génial</b> yeah !";
+	$html = "wouhou <b>g&eacute;nial</b> yeah !";
 	
 	$toOpenXML = HTMLtoOpenXML::getInstance()->fromHTML($html);
 	
