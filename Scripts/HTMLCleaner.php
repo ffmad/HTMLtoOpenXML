@@ -19,11 +19,12 @@ class HTMLCleaner {
 	 *	@return The result string.
 	 */
 	public function cleanUpHTML($htmlCode) {
-		echo(htmlentities($htmlCode))."<br>";
 		$cleanHtmlCode = html_entity_decode($htmlCode);
-		echo(htmlentities($cleanHtmlCode));
 		$cleanHtmlCode = $this->cleanFirstDivIfAny($htmlCode);
 		$cleanHtmlCode = $this->cleanUpFontTagsIfAny($cleanHtmlCode);
+		$cleanHtmlCode = $this->cleanUpSpanTagsIfAny($cleanHtmlCode);
+		$cleanHtmlCode = $this->cleanUpParagraphTagsIfAny($cleanHtmlCode);
+		$cleanHtmlCode = $this->cleanUpEmTagsIfAny($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpEmptyTags($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);
@@ -74,7 +75,46 @@ class HTMLCleaner {
 		$output = preg_replace("/(<\/font>)/mi", "", $output);
 		return $output;
 	}
-
+	
+	/**
+	 *	The WYSIWYG can generate <span> tags. They need to clean up them.
+	 *
+	 *	@param input
+	 *		the HTML string
+	 *	@return The result string.
+	 */
+	private function cleanUpSpanTagsIfAny($input) {
+		$output = preg_replace("/(<span[a-zA-Z0-9_.=,:;#'\"\- \(\)]*>)/mi", "", $input);
+		$output = preg_replace("/(<\/span>)/mi", "", $output);
+		return $output;
+	}
+	
+	/**
+	 *	The WYSIWYG can generate <p> tags. They need to clean up them.
+	 *
+	 *	@param input
+	 *		the HTML string
+	 *	@return The result string.
+	 */
+	private function cleanUpParagraphTagsIfAny($input) {
+		$output = preg_replace("/(<p[a-zA-Z0-9_.=,:;#'\"\- \(\)]*>)/mi", "", $input);
+		$output = preg_replace("/(<\/p>)/mi", "<br>", $output);
+		return $output;
+	}
+	
+	/**
+	 *	The WYSIWYG can generate <em> tags. They need to clean up them.
+	 *
+	 *	@param input
+	 *		the HTML string
+	 *	@return The result string.
+	 */
+	private function cleanUpEmTagsIfAny($input) {
+		$output = preg_replace("/(<em[a-zA-Z0-9_.=,:;#'\"\- \(\)]*>)/mi", "<i>", $input);
+		$output = preg_replace("/(<\/em>)/mi", "</i>", $output);
+		return $output;
+	}
+	
 	/**
 	 *	The WYSIWYG can generate zero-width spaces(&#8203;). They need to clean up them.
 	 *

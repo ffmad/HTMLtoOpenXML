@@ -38,7 +38,7 @@ class HTMLtoOpenXML {
 		$start = 0;
 		$properties = array();
 		$openxml = HTMLCleaner::getInstance()->cleanUpHTML($htmlCode);
-		$openxml = $this->getOpenXML($htmlCode);
+		$openxml = $this->getOpenXML($openxml);
 		$openxml = $this->processBreaks($openxml);
 		$openxml = $this->processListStyle($openxml);
 		$openxml = ProcessProperties::getInstance()->processPropertiesStyle($openxml, $start, $properties);
@@ -58,12 +58,13 @@ class HTMLtoOpenXML {
 		$output = preg_replace("/(<\/ul>)/mi", '</w:t></w:r></w:p><w:p><w:r><w:t>', $output);
 		$output = preg_replace("/(<ol>)/mi", '</w:t></w:r></w:p><w:p><w:r><w:t>', $output);
 		$output = preg_replace("/(<\/ol>)/mi", '</w:t></w:r></w:p><w:p><w:r><w:t>', $output);
-		$output = preg_replace("/(<li>)/mi", "</w:t></w:r><startliste><w:r><w:t>", $output);
+		$output = preg_replace("/(<li>)/mi", "</w:t></w:r><w:p startliste><w:r><w:t>", $output);
 		$output = preg_replace("/(<\/li>)/mi", "", $output);
 		return $output;
 	}
 	
 	private function processBreaks($input) {
+		$output = preg_replace("/(<\/p>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>", $input);
 		$output = preg_replace("/(<br>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>", $input);
 		return $output;
 	}
@@ -76,7 +77,7 @@ class HTMLtoOpenXML {
 	
 	private function processStyle($input) {
 		$output = preg_replace("/(<w:p>)/mi", "<w:p><w:pPr><w:pStyle w:val='OurStyle2'/></w:pPr>", $input);
-		$output = preg_replace("/(<startliste>)/mi", "</w:p><w:p><w:pPr><w:pStyle w:val='BulletStyle'/></w:pPr>", $output);
+		$output = preg_replace("/(<w:p startliste>)/mi", "</w:p><w:p><w:pPr><w:pStyle w:val='BulletStyle'/></w:pPr>", $output);
 		return $output;
 	}
 	
