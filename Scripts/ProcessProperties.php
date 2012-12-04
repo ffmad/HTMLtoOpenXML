@@ -45,7 +45,7 @@ class ProcessProperties {
 					case "w":
 						break;
 					case "/":
-						$html = $this->removeEndBracket($html, $properties, $i);
+						list ($html, $properties) = $this->removeEndBracket($html, $properties, $i);
 						break;
 					default:
 						$html = $this->suppressStyle($i, $html);
@@ -78,7 +78,10 @@ class ProcessProperties {
 				$html = $this->suppressStyle($i, $html);
 				break;
 		}
-		return $html;
+		return array(
+			$html, 
+			$properties
+		);
 	}
 	
 	// Add a new property to the properties'list
