@@ -25,6 +25,7 @@ class HTMLCleaner {
 		$cleanHtmlCode = $this->cleanUpSpanTagsIfAny($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpParagraphTagsIfAny($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpEmTagsIfAny($cleanHtmlCode);
+		$cleanHtmlCode = $this->cleanUpHeadTagsIfAny($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpEmptyTags($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);
@@ -112,6 +113,19 @@ class HTMLCleaner {
 	private function cleanUpEmTagsIfAny($input) {
 		$output = preg_replace("/(<em[a-zA-Z0-9_.=,:;#'\"\- \(\)]*>)/mi", "<i>", $input);
 		$output = preg_replace("/(<\/em>)/mi", "</i>", $output);
+		return $output;
+	}
+	
+	/**
+	 *	The WYSIWYG can generate <h> tags. They need to clean up them.
+	 *
+	 *	@param input
+	 *		the HTML string
+	 *	@return The result string.
+	 */
+	private function cleanUpHeadTagsIfAny($input) {
+		$output = preg_replace("/(<h[a-zA-Z0-9_.=,:;#'\"\- \(\)]*>)/mi", "", $input);
+		$output = preg_replace("/(<\/h[a-zA-Z0-9_.=,:;#'\"\- \(\)]>)/mi", "", $output);
 		return $output;
 	}
 	
