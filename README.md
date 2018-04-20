@@ -15,10 +15,10 @@ INSTALLATION
 WHAT H2OXML CAN DO
 ==================
 
-For now it can deals with :
+For now it can deal with :
   - Paragraphs
-  - ~~Bold, italic and underlined text~~
-  - Bulleted lists
+  - Bold, italic and underlined text (<strong|b|em|i|u>)
+  - Bullet lists
 
 Many more can be done (the wysiwyg editor had only simple functions)
 

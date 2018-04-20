@@ -22,8 +22,8 @@ class ProcessProperties {
 		$i0 = $nbre;
 
 		// NOTE Hack to make proper HTML work for strong|em
-		$html = preg_replace('/<strong>(.*?)<\/strong>/i', '<b>$1</b>', $html);
-		$html = preg_replace('/<em>(.*?)<\/em>/i', '<i>$1</i>', $html);
+		$html = preg_replace('/<strong.*?>(.*?)<\/strong>/i', '<b>$1</b>', $html);
+		$html = preg_replace('/<em.*?>(.*?)<\/em>/i', '<i>$1</i>', $html);
 
 		for ($i=$i0; $i < strlen($html); $i++){
 			if ($html[$i] == "<")
