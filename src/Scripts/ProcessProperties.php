@@ -30,17 +30,17 @@ class ProcessProperties {
 			{
 				switch ($html[$i+1]) {
 					case "i":
-						list ($properties, $writeproperties) = $this->addProperty("italic", $properties); // change properties and write new text ppt
-						$html = substr_replace($html, $writeproperties, $i , 3); // remove <i> and write properties
+						list ($properties, $writeProperties) = $this->addProperty("italic", $properties); // change properties and write new text ppt
+						$html = substr_replace($html, $writeProperties, $i , 3); // remove <i> and write properties
 						break;
 					case "b":
-						list ($properties, $writeproperties) = $this->addProperty("bold", $properties);
-						$html = substr_replace($html, $writeproperties, $i , 3); // remove <b> and write properties
+						list ($properties, $writeProperties) = $this->addProperty("bold", $properties);
+						$html = substr_replace($html, $writeProperties, $i , 3); // remove <b> and write properties
 						break;
 					case "u":
-						list ($properties, $writeproperties) = $this->addProperty("underlined", $properties);
+						list ($properties, $writeProperties) = $this->addProperty("underlined", $properties);
 						if ($html[$i+2] == ">"){
-							$html = substr_replace($html, $writeproperties, $i , 3);
+							$html = substr_replace($html, $writeProperties, $i , 3);
 							break;
 						} else break;
 					case "w":
@@ -70,16 +70,16 @@ class ProcessProperties {
 	private function removeEndBracket($html, $properties, $i) {
 		switch ($html[$i+2]) {
 			case "i":
-				list ($properties, $writeproperties) = $this->removeProperty("italic", $properties);
-				$html = substr_replace($html, $writeproperties, $i, 4); // remove </i> and write properties
+				list ($properties, $writeProperties) = $this->removeProperty("italic", $properties);
+				$html = substr_replace($html, $writeProperties, $i, 4); // remove </i> and write properties
 				break;
 			case "b":
-				list ($properties, $writeproperties) = $this->removeProperty("bold", $properties);
-				$html = substr_replace($html, $writeproperties, $i, 4); // remove </b> and write properties
+				list ($properties, $writeProperties) = $this->removeProperty("bold", $properties);
+				$html = substr_replace($html, $writeProperties, $i, 4); // remove </b> and write properties
 				break;
 			case "u":
-				list ($properties, $writeproperties) = $this->removeProperty("underlined", $properties);
-				$html = substr_replace($html, $writeproperties, $i, 4); // remove </u> and write properties
+				list ($properties, $writeProperties) = $this->removeProperty("underlined", $properties);
+				$html = substr_replace($html, $writeProperties, $i, 4); // remove </u> and write properties
 				break;
 			case "w":
 				break;
