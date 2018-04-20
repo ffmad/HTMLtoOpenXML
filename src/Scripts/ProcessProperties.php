@@ -1,25 +1,30 @@
 <?php
 
-namespace HTMLtoOpenXML;
+namespace HTMLtoOpenXML\Scripts;
 
 class ProcessProperties {
 
-    /**
-     * @ Main Function to convert style : processPropertiesStyle
-     *
-     * This function check all of the html text for simple style
-     * If it find bold, italic or other style it will add it to an other
-     * function which will create a new run section with the new property
-     *
-     * @param $input
-     * @param $nbre
-     *
-     * @return mixed
-     */
+	/**
+	 * @ Main Function to convert style : processPropertiesStyle
+	 *
+	 * This function check all of the html text for simple style
+	 * If it find bold, italic or other style it will add it to an other
+	 * function which will create a new run section with the new property
+	 *
+	 * @param $input
+	 * @param $nbre
+	 *
+	 * @return mixed
+	 */
 	public function processPropertiesStyle($input, $nbre) {
 		$properties = array();
 		$html = $input;
 		$i0 = $nbre;
+
+		// NOTE Hack to make proper HTML work for strong|em
+		$html = preg_replace('/<strong>(.*?)<\/strong>/i', '<b>$1</b>', $html);
+		$html = preg_replace('/<em>(.*?)<\/em>/i', '<i>$1</i>', $html);
+
 		for ($i=$i0; $i < strlen($html); $i++){
 			if ($html[$i] == "<")
 			{
@@ -35,8 +40,8 @@ class ProcessProperties {
 					case "u":
 						list ($properties, $writeproperties) = $this->addProperty("underlined", $properties);
 						if ($html[$i+2] == ">"){
-						$html = substr_replace($html, $writeproperties, $i , 3);
-						break;
+							$html = substr_replace($html, $writeproperties, $i , 3);
+							break;
 						} else break;
 					case "w":
 						break;
@@ -53,15 +58,15 @@ class ProcessProperties {
 		return $html;
 	}
 
-    /**
-     * Second part : remove & replace </ > tags
-     *
-     * @param $html
-     * @param $properties
-     * @param $i
-     *
-     * @return array
-     */
+	/**
+	 * Second part : remove & replace </ > tags
+	 *
+	 * @param $html
+	 * @param $properties
+	 * @param $i
+	 *
+	 * @return array
+	 */
 	private function removeEndBracket($html, $properties, $i) {
 		switch ($html[$i+2]) {
 			case "i":
@@ -83,35 +88,35 @@ class ProcessProperties {
 				break;
 		}
 		return array(
-			$html, 
-			$properties
+				$html,
+				$properties
 		);
 	}
 
-    /**
-     * Add a new property to the properties' list
-     *
-     * @param $property
-     * @param $properties
-     *
-     * @return array
-     */
+	/**
+	 * Add a new property to the properties' list
+	 *
+	 * @param $property
+	 * @param $properties
+	 *
+	 * @return array
+	 */
 	private function addProperty($property, $properties) {
 		array_push($properties, $property);
-		return array( 
-			$properties, 
-			$this->setProperty($properties),
+		return array(
+				$properties,
+				$this->setProperty($properties),
 		);
 	}
 
-    /**
-     * Remove a property of the properties'list
-     *
-     * @param $property
-     * @param $properties
-     *
-     * @return array
-     */
+	/**
+	 * Remove a property of the properties'list
+	 *
+	 * @param $property
+	 * @param $properties
+	 *
+	 * @return array
+	 */
 	private function removeProperty($property, $properties) {
 		foreach ($properties as $key => $value) {
 			if ($value == $property){
@@ -120,18 +125,18 @@ class ProcessProperties {
 			}
 		}
 		return array(
-			$properties, 
-			$this->setProperty($properties),
+				$properties,
+				$this->setProperty($properties),
 		);
 	}
 
-    /**
-     * Set the properties for the next run section of text
-     *
-     * @param $properties
-     *
-     * @return string
-     */
+	/**
+	 * Set the properties for the next run section of text
+	 *
+	 * @param $properties
+	 *
+	 * @return string
+	 */
 	private function setProperty($properties) {
 		$propertiesList = "</w:t></w:r><w:r><w:rPr>";
 		foreach ($properties as $value) {
@@ -147,20 +152,34 @@ class ProcessProperties {
 					break;
 				default:
 					break;
-			}	
+			}
 		}
 		$propertiesList = $propertiesList."</w:rPr><w:t>";
 		return $propertiesList;
 	}
 
-    /**
-     * Suppress style not yet cleaned from the text
-     *
-     * @param $nb
-     * @param $html
-     *
-     * @return mixed
-     */
+//	private function wrapProperty($type, $value) {
+//	    $return = "</w:t></w:r><w:r><w:rPr>";
+//
+//	    switch ($type) {
+//        case 'bold':
+//            $return
+//            break;
+//
+//
+//        }
+//
+//        $return .= "</w:rPr><w:t>";
+//    }
+
+	/**
+	 * Suppress style not yet cleaned from the text
+	 *
+	 * @param $nb
+	 * @param $html
+	 *
+	 * @return mixed
+	 */
 	private function suppressStyle($nb, $html) {
 		$j = false;
 		$i = 0;
