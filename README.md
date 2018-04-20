@@ -7,19 +7,28 @@ Simple PHP script which take HTML code and transform it into OpenXML Code. (for 
 
 This is the very first version. I coded this because i wanted to put text from a WYSIWYG editor into a .docx document.
 
+INSTALLATION
+============
+
+`composer require rkorebrits/htmltoopenxml`
+
 WHAT H2OXML CAN DO
 ==================
 
 For now it can deals with :
-  - Bold, italic and underlined text
+  - Paragraphs
+  - ~~Bold, italic and underlined text~~
   - Bulleted lists
-...
+
 Many more can be done (the wysiwyg editor had only simple functions)
 
 
 HOW TO USE IT
 =============
 
+```
 $parser = new HTMLtoOpenXML\Parser();
+
 $ooXml = $parser->fromHTML($html);
 
+```
