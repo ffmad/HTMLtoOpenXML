@@ -1,21 +1,24 @@
 {
-    "name": "rkorebrits/htmltoopenxml",
-    "license": "LGPL-3.0",
-    "description": "Convert HTML to OpenOfficeXML",
-    "type": "library",
-    "authors": [
-        {
-            "name": "Richard Korebrits",
-            "email": "richard@korebrits.com"
-        }
-    ],
-    "require": {
-      "php": "^5.3.3 || ^7.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "HTMLtoOpenXML\\": "src"
-        }
-    }
+  "name": "rkorebrits/htmltoopenxml",
+  "license": "LGPL-3.0",
+  "description": "Convert HTML to OpenOfficeXML",
+  "keywords": [
+    "OOXML", "HTML"
+  ],
+  "type": "library",
+  "authors": [
+      {
+          "name": "Richard Korebrits",
+          "email": "richard@korebrits.com"
+      }
+  ],
+  "require": {
+    "php": "^5.3.3 || ^7.0"
+  },
+  "autoload": {
+      "psr-4": {
+          "HTMLtoOpenXML\\": "src"
+      }
+  }
 
 }
