@@ -1,0 +1,19 @@
+{
+    "name": "rkorebrits/htmltoopenxml",
+    "license": "",
+    "description": "Convert HTML to OpenOfficeXML",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Richard Korebrits",
+            "email": "richard@korebrits.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "HTMLtoOpenXML\\": "src"
+        }
+    }
+
+}
