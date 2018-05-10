@@ -22,6 +22,7 @@ class HTMLCleaner {
 		$cleanHtmlCode = $this->cleanUpEmptyTags($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
 		$cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);
+		$cleanHtmlCode = $this->_removeTrailingBreaksAndEmptyParagraphs($cleanHtmlCode);
 
 		return $cleanHtmlCode;
 	}
@@ -151,4 +152,22 @@ class HTMLCleaner {
 
 		return $output;
 	}
+
+    private function _removeTrailingBreaksAndEmptyParagraphs($html) {
+        $empty_p_regex = '/<p>\s?<\/p>$/i';
+        $has_empty_p = preg_match($empty_p_regex, $html);
+
+        $empty_br_regex = '/<br>$/i';
+        $has_empty_br = preg_match($empty_br_regex, $html);
+
+        if ($has_empty_p) {
+            $html = preg_replace($empty_p_regex, '', $html);
+            return $this->_removeTrailingBreaksAndEmptyParagraphs($html);
+        } elseif ($has_empty_br) {
+            $html = preg_replace($empty_br_regex, '', $html);
+            return $this->_removeTrailingBreaksAndEmptyParagraphs($html);
+        }
+
+        return $html;
+    }
 }
