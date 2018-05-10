@@ -24,6 +24,7 @@ class HTMLCleaner {
         $cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
         $cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);
         $cleanHtmlCode = $this->_removeTrailingBreaksAndEmptyParagraphs($cleanHtmlCode);
+        $cleanHtmlCode = $this->_fixAmpersands($cleanHtmlCode);
 
         return $cleanHtmlCode;
     }
@@ -171,5 +172,16 @@ class HTMLCleaner {
         }
 
         return $html;
+    }
+
+    /**
+     * For XML, ampersands need to be &amp;
+     *
+     * @param $html
+     *
+     * @return null|string|string[]
+     */
+    private function _fixAmpersands($html){
+        return preg_replace('/&(?!amp;)/i', '&amp;', $html);
     }
 }
