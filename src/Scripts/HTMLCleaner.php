@@ -23,7 +23,8 @@ class HTMLCleaner {
         $cleanHtmlCode = $this->cleanUpEmptyTags($cleanHtmlCode);
         $cleanHtmlCode = $this->cleanUpZeroWidthSpaceCodes($cleanHtmlCode);
         $cleanHtmlCode = $this->cleanBRTagsAtTheEndOfListItemsIfAny($cleanHtmlCode);
-        $cleanHtmlCode = $this->_removeTrailingBreaksAndEmptyParagraphs($cleanHtmlCode);
+        $cleanHtmlCode = $this->_trimBreaksAndEmptyParagraphs($cleanHtmlCode, true);
+        $cleanHtmlCode = $this->_trimBreaksAndEmptyParagraphs($cleanHtmlCode, false);
         $cleanHtmlCode = $this->_fixAmpersands($cleanHtmlCode);
 
         return $cleanHtmlCode;
@@ -155,20 +156,29 @@ class HTMLCleaner {
         return $output;
     }
 
-    private function _removeTrailingBreaksAndEmptyParagraphs($html) {
+    private function _trimBreaksAndEmptyParagraphs($html, $end = true) {
+        $empty_p_regex = '<p>\s?<\/p>';
+        $empty_br_regex = '<br>';
+
+        if($end) {
+            $empty_p_regex = sprintf('/%s$/i', $empty_p_regex);
+            $empty_br_regex = sprintf('/%s$/i', $empty_br_regex);
+        } else {
+            $empty_p_regex = sprintf('/^%s/i', $empty_p_regex);
+            $empty_br_regex = sprintf('/^%s/i', $empty_br_regex);
+        }
+
         $html = trim($html);
-        $empty_p_regex = '/<p>\s?<\/p>$/i';
         $has_empty_p = preg_match($empty_p_regex, $html);
 
-        $empty_br_regex = '/<br>$/i';
         $has_empty_br = preg_match($empty_br_regex, $html);
 
         if ($has_empty_p) {
             $html = preg_replace($empty_p_regex, '', $html);
-            return $this->_removeTrailingBreaksAndEmptyParagraphs($html);
+            return $this->_trimBreaksAndEmptyParagraphs($html, $end);
         } elseif ($has_empty_br) {
             $html = preg_replace($empty_br_regex, '', $html);
-            return $this->_removeTrailingBreaksAndEmptyParagraphs($html);
+            return $this->_trimBreaksAndEmptyParagraphs($html, $end);
         }
 
         return $html;
