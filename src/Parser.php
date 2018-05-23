@@ -112,12 +112,13 @@ class Parser
         return $output;
     }
 
-    private function processSpaces($input) {
-        $output = preg_replace("/(&nbsp;)/mi", " ", $input);
-        $output = preg_replace(
-                "/(<w:t>)/mi", "<w:t xml:space='preserve'>", $output
-        );
-
+    /**
+     * @param $html
+     * @author © Alex Moore
+     *
+     * @return null|string|string[]
+     */
+    public function minifyHtml($html){
         $re
                 = '%# Collapse whitespace everywhere but in blacklisted elements.
         (?>             # Match all whitespans other than single space.
@@ -139,7 +140,16 @@ class Parser
         )  # If we made it here, we are not in a blacklist tag.
         %Six';
 
-        $output = preg_replace($re, "", $output);
+        return preg_replace($re, "", $html);
+    }
+
+    private function processSpaces($input) {
+        $output = preg_replace("/(&nbsp;)/mi", " ", $input);
+        $output = preg_replace(
+                "/(<w:t>)/mi", "<w:t xml:space='preserve'>", $output
+        );
+
+        $output = $this->minifyHtml($output);
 
         return $output;
     }
