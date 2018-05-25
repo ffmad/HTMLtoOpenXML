@@ -37,7 +37,9 @@ class Parser
         $openxml = $this->_processProperties->processPropertiesStyle(
                 $openxml, $start
         );
+        $openxml = $this->_removeStartSpaces($openxml);
         $openxml = $this->_removeEndSpaces($openxml);
+
         $openxml = $this->processSpaces($openxml);
         $openxml = $this->processStyle($openxml);
 
@@ -50,6 +52,16 @@ class Parser
         if(preg_match($regex, $openxml)) {
             $openxml = preg_replace($regex, '<w:t>', $openxml);
             return $this->_removeEndSpaces($openxml);
+        }
+
+        return $openxml;
+    }
+
+    private function _removeStartSpaces($openxml){
+        $regex = '/^<w:p><w:r><w:t><\/w:t><\/w:r><\/w:p>/';
+        if(preg_match($regex, $openxml)) {
+            $openxml = preg_replace($regex, '', $openxml);
+            return $this->_removeStartSpaces($openxml);
         }
 
         return $openxml;
