@@ -9,9 +9,9 @@ class Parser
     private $_processProperties;
     private $_listIndex = 1;
     private $_listLevel = 0;
+    private $_openXml = '';
 
-    public function __construct()
-    {
+    public function __construct() {
         $this->_cleaner = new Scripts\HTMLCleaner;
         $this->_processProperties = new Scripts\ProcessProperties;
     }
@@ -24,94 +24,77 @@ class Parser
      *
      * @return string The converted string.
      */
-    public function fromHTML($htmlCode, $wrapContent = true)
-    {
+    public function fromHTML($htmlCode, $wrapContent = true) {
         $start = 0;
 
-        $openXml = $this->_cleaner->cleanUpHTML($htmlCode);
+        $this->_openXml = $this->_cleaner->cleanUpHTML($htmlCode);
         if ($wrapContent) {
-            $openXml = $this->getOpenXML($openXml);
+            $this->_getOpenXML();
         }
-        $openXml = $this->processBreaks($openXml);
-        $openXml = $this->_processListStyle($openXml);
-        $openXml = $this->_processProperties->processPropertiesStyle($openXml, $start);
-        $openXml = $this->_removeStartSpaces($openXml);
-        $openXml = $this->_removeEndSpaces($openXml);
+        $this->_processBreaks();
+        $this->_processListStyle();
+        $this->_openXml = $this->_processProperties->processPropertiesStyle(
+                $this->_openXml, $start
+        );
+        $this->_removeStartSpaces();
+        $this->_removeEndSpaces();
 
-        $openXml = $this->processSpaces($openXml);
+        $this->_processSpaces();
 
-        return $openXml;
+        return $this->_openXml;
     }
 
     /**
      * Remove empty blocks of XML from the end of the final output
-     *
-     * @param $openXml
-     *
-     * @return string
      */
-    private function _removeEndSpaces($openXml)
-    {
+    private function _removeEndSpaces() {
         $regex = '/<w:t><\/w:t><\/w:r><\/w:p><w:p><w:r><w:t>$/';
-        if (preg_match($regex, $openXml)) {
-            $openXml = preg_replace($regex, '<w:t>', $openXml);
+        if (preg_match($regex, $this->_openXml)) {
+            $this->_openXml = preg_replace($regex, '<w:t>', $this->_openXml);
 
-            return $this->_removeEndSpaces($openXml);
+            $this->_removeEndSpaces();
         }
 
-        return $openXml;
     }
 
     /**
      * Remove empty blocks of XML from the start of the final output
-     *
-     * @param $openXml
-     *
-     * @return string
      */
-    private function _removeStartSpaces($openXml)
-    {
+    private function _removeStartSpaces() {
         $regex = '/^<w:p><w:r><w:t><\/w:t><\/w:r><\/w:p>/';
-        if (preg_match($regex, $openXml)) {
-            $openXml = preg_replace($regex, '', $openXml);
+        if (preg_match($regex, $this->_openXml)) {
+            $this->_openXml = preg_replace($regex, '', $this->_openXml);
 
-            return $this->_removeStartSpaces($openXml);
+            $this->_removeStartSpaces();
         }
 
-        return $openXml;
     }
 
-    private function getOpenXML($text)
-    {
-        $text = "<w:p><w:r><w:t>$text</w:t></w:r></w:p>";
+    private function _getOpenXML() {
+        $this->_openXml = "<w:p><w:r><w:t>" . $this->_openXml
+                . "</w:t></w:r></w:p>";
 
-        return $text;
     }
 
 
     /**
-     * First we check if there are multiple levels of lists. Only tested with 2 levels, not sure if this will work with
-     * more than 2 lists
-     *
-     * @param $html
-     *
-     * @return string
+     * First we check if there are multiple levels of lists. Only tested with 2
+     * levels, not sure if this will work with more than 2 lists
      */
-    private function _preProcessNestedLists($html)
-    {
+    private function _preProcessNestedLists() {
 
         $this->_listLevel = 1;
 
-        $output = preg_replace_callback('/<li>([^<]+)<(?:ul|ol).*?>(.*?)<\/(?:ul|ol).*?><\/li>/im',
-                [$this, 'preProcessNestedList'], $html);
+        $this->_openXml = preg_replace_callback(
+                '/<li>([^<]+)<(?:ul|ol).*?>(.*?)<\/(?:ul|ol).*?><\/li>/im',
+                [$this, 'preProcessNestedList'], $this->_openXml
+        );
 
         $this->_listLevel = 0;
 
-        return $output;
     }
 
-    public function preProcessNestedList($html)
-    {
+    public function preProcessNestedList($html) {
         $output = '';
         if ($html[1]) {
             $output = sprintf('<li>%s</li>', $html[1]);
@@ -121,24 +104,26 @@ class Parser
         return $output;
     }
 
-    private function _processListStyle($input)
-    {
+    private function _processListStyle() {
 
-        $output = preg_replace("/\n/", ' ', $input);
+        $this->_openXml = preg_replace("/\n/", ' ', $this->_openXml);
 
-        $output = $this->_preProcessNestedLists($output);
+        $this->_preProcessNestedLists();
 
-        $output = preg_replace_callback('/<(ul|ol).*?>(.*?)<\/(?:ul|ol)>/im', [$this, 'processList'], $output);
+        $this->_openXml = preg_replace_callback(
+                '/<(ul|ol).*?>(.*?)<\/(?:ul|ol)>/im', [$this, 'processList'],
+                $this->_openXml
+        );
 
-        return $output;
     }
 
-    public function processList($html)
-    {
+    public function processList($html) {
 
         $output = '';
 
-        $output .= preg_replace_callback('/<li.*?>(.*?)<\/li>/im', [$this, 'processListItem'], $html[2]);
+        $output .= preg_replace_callback(
+                '/<li.*?>(.*?)<\/li>/im', [$this, 'processListItem'], $html[2]
+        );
 
 
         if ($this->_listLevel === 0) {
@@ -153,21 +138,25 @@ class Parser
         return $output;
     }
 
-    public function processListItem($html)
-    {
+    public function processListItem($html) {
 
-        $html = sprintf("</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val='ListParagraph'/><w:numPr><w:ilvl w:val='%d'/><w:numId w:val='%d'/></w:numPr></w:pPr><w:r><w:t xml:space='preserve'>%s",
-                $this->_listLevel, $this->_listIndex, trim($html[1]));
+        $html = sprintf(
+                "</w:t></w:r></w:p><w:p><w:pPr><w:pStyle w:val='ListParagraph'/><w:numPr><w:ilvl w:val='%d'/><w:numId w:val='%d'/></w:numPr></w:pPr><w:r><w:t xml:space='preserve'>%s",
+                $this->_listLevel, $this->_listIndex, trim($html[1])
+        );
 
         return $html;
     }
 
-    private function processBreaks($input)
-    {
-        $output = preg_replace("/(<\/p>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>", $input);
-        $output = preg_replace("/(<br\s?\/?>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>", $output);
+    private function _processBreaks() {
+        $this->_openXml = preg_replace(
+                "/(<\/p>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>", $this->_openXml
+        );
+        $this->_openXml = preg_replace(
+                "/(<br\s?\/?>)/mi", "</w:t></w:r></w:p><w:p><w:r><w:t>",
+                $this->_openXml
+        );
 
-        return $output;
     }
 
     /**
@@ -177,9 +166,9 @@ class Parser
      *
      * @return null|string|string[]
      */
-    public function minifyHtml($html)
-    {
-        $re = '%# Collapse whitespace everywhere but in blacklisted elements.
+    public function minifyHtml($html) {
+        $re
+                = '%# Collapse whitespace everywhere but in blacklisted elements.
         (?>             # Match all whitespans other than single space.
           [^\S ]\s*     # Either one [\t\r\n\f\v] and zero or more ws,
         | \s{2,}        # or two or more consecutive-any-whitespace.
@@ -202,14 +191,14 @@ class Parser
         return preg_replace($re, "", $html);
     }
 
-    private function processSpaces($input)
-    {
-        $output = preg_replace("/(&nbsp;)/mi", " ", $input);
-        $output = preg_replace("/(<w:t>)/mi", "<w:t xml:space='preserve'>", $output);
+    private function _processSpaces() {
+        $this->_openXml = preg_replace("/(&nbsp;)/mi", " ", $this->_openXml);
+        $this->_openXml = preg_replace(
+                "/(<w:t>)/mi", "<w:t xml:space='preserve'>", $this->_openXml
+        );
 
-        $output = $this->minifyHtml($output);
+        $this->_openXml = $this->minifyHtml($this->_openXml);
 
-        return $output;
     }
 
 }
