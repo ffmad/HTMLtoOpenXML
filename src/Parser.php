@@ -24,22 +24,26 @@ class Parser
      *
      * @return string The converted string.
      */
-    public function fromHTML($htmlCode, $wrapContent = true) {
-        $start = 0;
+    public function fromHTML($html, $wrapContent = true) {
+        $this->_openXml = $html;
 
-        $this->_openXml = $this->_cleaner->cleanUpHTML($htmlCode);
+        $this->_preProcessLtGt();
+
+        $this->_openXml = $this->_cleaner->cleanUpHTML($this->_openXml);
         if ($wrapContent) {
             $this->_getOpenXML();
         }
         $this->_processBreaks();
         $this->_processListStyle();
         $this->_openXml = $this->_processProperties->processPropertiesStyle(
-                $this->_openXml, $start
+                $this->_openXml, 0
         );
         $this->_removeStartSpaces();
         $this->_removeEndSpaces();
 
         $this->_processSpaces();
+
+        $this->_postProcessLtGt();
 
         return $this->_openXml;
     }
@@ -198,6 +202,31 @@ class Parser
         );
 
         $this->_openXml = $this->minifyHtml($this->_openXml);
+
+    }
+
+    /**
+     * &lt; and &gt; need to be processed seprately because otherwise they're
+     * parsed as < and >, which will break the XML
+     */
+    private function _preProcessLtGt() {
+        $this->_openXml = preg_replace(
+                '/\&(lt|gt);/im', '\$\$$1;', $this->_openXml
+        );
+        // Just in case also check for &amp;lt;
+        $this->_openXml = preg_replace(
+                '/\&amp;(lt|gt);/im', '\$\$$1;', $this->_openXml
+        );
+//        prd(($this->_openXml));
+    }
+
+    /**
+     * Reset the values again
+     */
+    private function _postProcessLtGt() {
+        $this->_openXml = preg_replace(
+                '/\$\$(lt|gt);/', '&$1;', $this->_openXml
+        );
 
     }
 
