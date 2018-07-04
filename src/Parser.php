@@ -33,8 +33,8 @@ class Parser
         if ($wrapContent) {
             $this->_getOpenXML();
         }
-        $this->_processBreaks();
         $this->_processListStyle();
+        $this->_processBreaks();
         $this->_openXml = $this->_processProperties->processPropertiesStyle(
                 $this->_openXml, 0
         );
@@ -80,7 +80,6 @@ class Parser
 
     }
 
-
     /**
      * First we check if there are multiple levels of lists. Only tested with 2
      * levels, not sure if this will work with more than 2 lists
@@ -90,7 +89,7 @@ class Parser
         $this->_listLevel = 1;
 
         $this->_openXml = preg_replace_callback(
-                '/<li>([^<]+)<(?:ul|ol).*?>(.*?)<\/(?:ul|ol).*?><\/li>/im',
+                '/<li>(.*?(?!<\/li>).*?)<(ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
                 [$this, 'preProcessNestedList'], $this->_openXml
         );
 
@@ -99,11 +98,12 @@ class Parser
     }
 
     public function preProcessNestedList($html) {
+
         $output = '';
         if ($html[1]) {
             $output = sprintf('<li>%s</li>', $html[1]);
         }
-        $output .= $this->processList($html);
+        $output .= $this->processList($html[3]);
 
         return $output;
     }
@@ -115,18 +115,19 @@ class Parser
         $this->_preProcessNestedLists();
 
         $this->_openXml = preg_replace_callback(
-                '/<(ul|ol).*?>(.*?)<\/(?:ul|ol)>/im', [$this, 'processList'],
+                '/<(ul|ol).*?>(.*?)<\/\1>/im', [$this, 'processList'],
                 $this->_openXml
         );
 
     }
 
     public function processList($html) {
+        $html = is_array($html) ? $html[2] : $html;
 
         $output = '';
 
         $output .= preg_replace_callback(
-                '/<li.*?>(.*?)<\/li>/im', [$this, 'processListItem'], $html[2]
+                '/<li.*?>(.*?)<\/li>/im', [$this, 'processListItem'], $html
         );
 
 
