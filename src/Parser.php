@@ -89,7 +89,7 @@ class Parser
         $this->_listLevel = 1;
 
         $this->_openXml = preg_replace_callback(
-                '/<li>([^<]+)<(?:ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
+                '/<li>(.*?(?!<\/li>).*?)<(ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
                 [$this, 'preProcessNestedList'], $this->_openXml
         );
 
