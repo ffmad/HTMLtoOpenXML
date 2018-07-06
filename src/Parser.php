@@ -33,6 +33,7 @@ class Parser
         if ($wrapContent) {
             $this->_getOpenXML();
         }
+
         $this->_processListStyle();
         $this->_processBreaks();
         $this->_openXml = $this->_processProperties->processPropertiesStyle(
@@ -85,25 +86,41 @@ class Parser
      * levels, not sure if this will work with more than 2 lists
      */
     private function _preProcessNestedLists() {
+        /*
+        '/<li>(.*?(?!<\/li>).*?)<(ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
+        // This allows for html in top level nest item, but breaks plain text
+
+        '/<li>([^<]*)<(?:ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
+        // doesnt allow html before nest, but works with normal copy
+         */
 
         $this->_listLevel = 1;
 
         $this->_openXml = preg_replace_callback(
-                '/<li>([^<]+)<(?:ul|ol).*?>(.*?)<\/\2.*?><\/li>/im',
+                '/<li>
+                (?>
+                    [^<]+
+                    |(<[uo]l)>
+                    |<(?!\/?li)[^>]*>
+                    |(?R)
+                )*
+                <\/li>
+                (?(1)|(*F))
+            /imx',
                 [$this, 'preProcessNestedList'], $this->_openXml
         );
 
         $this->_listLevel = 0;
-
     }
 
     public function preProcessNestedList($html) {
+        preg_match('/^<li>(.*?)<(ol|ul)>(.*?)<\/\2><\/li>$/', $html[0], $match);
 
         $output = '';
-        if ($html[1]) {
-            $output = sprintf('<li>%s</li>', $html[1]);
+        if ($match[1]) {
+            $output = sprintf('<li>%s</li>', $match[1]);
         }
-        $output .= $this->processList($html[3]);
+        $output .= $this->processList($match[3]);
 
         return $output;
     }
@@ -130,9 +147,9 @@ class Parser
                 '/<li.*?>(.*?)<\/li>/im', [$this, 'processListItem'], $html
         );
 
+        $output .= '</w:t></w:r></w:p><w:p><w:r><w:t>';
 
         if ($this->_listLevel === 0) {
-            $output .= '</w:t></w:r></w:p><w:p><w:r><w:t>';
 
             // Add a blank line after the list, otherwise it's attached
             $output .= '</w:t></w:r></w:p><w:p><w:r><w:t>';
